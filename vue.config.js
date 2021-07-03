@@ -1,4 +1,6 @@
 const path = require('path')
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer')
+  .BundleAnalyzerPlugin
 
 function resolve(dir) {
   return path.join(__dirname, dir)
@@ -71,6 +73,11 @@ module.exports = {
           }
         }
       }
+      if (process.env.npm_config_report) {
+        return {
+          plugins: [new BundleAnalyzerPlugin()]
+        }
+      }
     }
   },
   chainWebpack: config => {
@@ -79,6 +86,8 @@ module.exports = {
     types.forEach(type =>
       addStyleResource(config.module.rule('less').oneOf(type))
     )
+    // 移除 prefetch 插件，（预先加载模块）
+    config.plugins.delete('prefetch')
   }
 }
 
