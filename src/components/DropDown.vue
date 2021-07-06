@@ -7,8 +7,6 @@
            :key="item.id"
            :class="{'active': item.isActive}">
         <span>{{item.text}}</span>
-        <!-- <i class="menu-icon"
-           :class="{'active': item.isActive}"></i> -->
         <img class="menu-img"
              :class="{'active': item.isActive}"
              :src="dropDownImg" />
@@ -23,18 +21,7 @@
              :style="`animation-duration: ${duration}s; ${overlay}`"
              :class="maskClassConversion"></div>
         <!-- 下拉选项框 -->
-        <div v-if="selectIndex === 0"
-             class="drop-options"
-             :class="[showOrHide?'slide-down':'slide-up']"
-             :style="`transition-duration: ${duration}}s; ${overlay}`">
-          <tree-select :navItems="navItems"
-                       :activeIndex="activeIndex"
-                       :subActiveIndex="subActiveIndex"
-                       @click-item="closeTreeSelect" />
-        </div>
-        <!-- 下拉选项框 -->
-        <div v-else
-             class="drop-options"
+        <div class="drop-options"
              :class="[showOrHide?'slide-down':'slide-up']"
              :style="`transition-duration: ${duration}}s; ${overlay}`">
           <div class="options"
@@ -55,8 +42,6 @@
 </template>
 
 <script>
-import TreeSelect from '@/components/TreeSelect.vue'
-
 export default {
   props: {
     menus: {
@@ -83,7 +68,23 @@ export default {
       default: () => ([
         {
           id: 0,
-          rank: []
+          rank: [
+            {
+              id: 1,
+              text: '浙江',
+              itemIsActive: true
+            },
+            {
+              id: 2,
+              text: '江苏',
+              itemIsActive: false
+            },
+            {
+              id: 3,
+              text: '海南',
+              itemIsActive: false
+            }
+          ]
         },
         {
           id: 1,
@@ -128,9 +129,6 @@ export default {
       default: -1
     }
   },
-  components: {
-    TreeSelect
-  },
   data () {
     return {
       dropDownImg: require('../assets/images/merchants/down.png'),
@@ -160,6 +158,18 @@ export default {
     this.navItems = this.treeItems
     this.activeIndex = this.treeSelIndex
     this.subActiveIndex = this.treeSelSubIndex
+    // 先找出当前选中的值
+    // 判断是否有默认值
+    this.menu.map((v, i) => {
+      // eslint-disable-next-line no-self-assign
+      if (v.selectedId) {
+        this.options[i].rank.forEach(item => {
+          if (item.id === v.selectedId) {
+            v.text = item.text
+          }
+        })
+      }
+    })
   },
   methods: {
     handleClick (index) {
@@ -189,9 +199,9 @@ export default {
       setTimeout(() => {
         this.showOrHide = true
         // 替换数据
-        if (index === 1) {
-          this.selectedItem = this.options[index].rank
-        }
+        // if (index === 1) {
+        this.selectedItem = this.options[index].rank
+        // }
         // 选中当前对应的下标
         this.selectIndex = index
       }, time)
@@ -212,7 +222,7 @@ export default {
       // 如果不是，不用赋值，直接把v.isActive = false，让菜单栏高亮消失
       item.text ? (this.menu.map((v, i) => {
         // eslint-disable-next-line no-self-assign
-        // i === this.selectIndex ? (v.text = item.text) : v.text = v.text
+        i === this.selectIndex ? (v.text = item.text) : v.text = v.text
         v.isActive = false
       })) : (this.menu.map((v) => { v.isActive = false }))
 
@@ -227,7 +237,7 @@ export default {
           return v.itemIsActive
         })
         // 通知父级
-        this.$emit('closeMask', { dropSelObj: dropSelObj[0], treeObj: { pid: this.navItems[this.activeIndex].id, selObj: this.navItems[this.activeIndex].children[this.subActiveIndex] } })
+        this.$emit('closeMask', { dropSelObj: dropSelObj[0] })
         return
       }
       // 否则继续其他操作，并发送请求获取数据
@@ -239,7 +249,7 @@ export default {
         return v.itemIsActive
       })
       // 通知父级
-      this.$emit('closeMask', { dropSelObj: dropSelObj[0], treeObj: { pid: this.navItems[this.activeIndex].id, selObj: this.navItems[this.activeIndex].children[this.subActiveIndex] } })
+      this.$emit('closeMask', { dropSelObj: dropSelObj[0] })
     },
     // 打开延时时间展示覆盖
     openOverlay (index) {
