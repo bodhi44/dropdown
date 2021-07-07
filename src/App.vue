@@ -3,23 +3,21 @@
        class="page">
     <transition name="fade"
                 mode="out-in">
-      <DropDown @closeMask="obtainData" />
+      <router-view />
     </transition>
+    <OfflineHandle offlineTitle="断网处理标题"
+                   desc="断网处理描述"
+                   onlineTitle="连网提醒">
+    </OfflineHandle>
   </div>
 </template>
 
 <script>
-import DropDown from '@/components/DropDown.vue'
-
+import OfflineHandle from '@/components/OfflineHandle'
 export default {
   name: 'App',
   components: {
-    DropDown
-  },
-  methods: {
-    obtainData (data) {
-      console.log(data, '===data')
-    }
+    OfflineHandle
   }
 }
 </script>

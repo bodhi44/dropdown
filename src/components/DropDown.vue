@@ -1,6 +1,7 @@
 <template>
-  <div>
-    <div class="drop-menu">
+  <div class="main">
+    <div class="drop-menu"
+         ref="menu">
       <div class="drop-item"
            @click="handleClick(index)"
            v-for="(item, index) in menu"
@@ -15,7 +16,7 @@
     <!-- 选项 -->
     <div>
       <div class="drop-content"
-           :style="overlay">
+           :style="`${overlay}top:${dropTop}px;height: ${maskHeight}px;`">
         <div class="mask"
              @click="closeMask"
              :style="`animation-duration: ${duration}s; ${overlay}`"
@@ -44,6 +45,10 @@
 <script>
 export default {
   props: {
+    top: {
+      type: Number,
+      default: 0
+    },
     menus: {
       type: Array,
       default: () => ([
@@ -146,7 +151,9 @@ export default {
       options: [],
       navItems: [],
       subActiveIndex: -1, // 当前选中的右边下标
-      activeIndex: 0 // 当前选中的左边下标
+      activeIndex: 0, // 当前选中的左边下标
+      maskHeight: 0,
+      dropTop: 0
     }
   },
   created () {
@@ -170,6 +177,15 @@ export default {
         })
       }
     })
+  },
+  mounted () {
+    console.log(this.top)
+    if (this.top > 0) {
+      this.dropTop = this.top + this.$refs.menu.offsetHeight * 2
+    } else {
+      this.dropTop = this.$refs.menu.offsetHeight
+    }
+    this.maskHeight = window.document.getElementById('app').offsetHeight - this.dropTop
   },
   methods: {
     handleClick (index) {
